@@ -4,7 +4,8 @@
 #include "Display.hh"
 #include "TArrow.h"
 #include "TLatex.h"
-
+#include "TStyle.h"
+#include "TColor.h"
 
 class PhotonWirePositionDisplay: public Display {
 
@@ -27,6 +28,7 @@ private:
   TLatex* NHit           ;
   TLatex* NHitTot        ;
   TLatex* NeutrinoEnergy ;
+  TLatex* Observation    ;
   TLatex* VertexXPosition;
 
 };

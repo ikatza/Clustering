@@ -6,7 +6,7 @@ void PhotonWirePositionDisplay::CreateGraphHit(std::map<int,TGraph*>&map_gr_wire
     map_gr_wire[chan] = new TGraph(2);
     map_gr_wire[chan]->SetPoint(0, (*im.Hit_Z_start)[hit], (*im.Hit_Y_start)[hit]);
     map_gr_wire[chan]->SetPoint(1, (*im.Hit_Z_end  )[hit], (*im.Hit_Y_end  )[hit]);
-    map_gr_wire[chan]->SetLineColor(kViolet);
+    map_gr_wire[chan]->SetLineColor(kOrange+1);
     map_gr_wire[chan]->SetLineWidth(1);
   } else {
     map_gr_wire[chan]->SetLineWidth(1+map_gr_wire[chan]->GetLineWidth());
@@ -22,7 +22,7 @@ std::map<GenType, TGraph*> PhotonWirePositionDisplay::SetUpGraph(const std::stri
     map_gr[it.first] = new TGraph(0);
     map_gr[it.first]->SetTitle((Title+it.second).c_str());
     map_gr[it.first]->SetName ((Title+h.ShortGenName[it.first]).c_str());
-    map_gr[it.first]->SetMarkerStyle(kStar);
+    map_gr[it.first]->SetMarkerStyle(kFullDoubleDiamond);
     map_gr[it.first]->SetMarkerSize(3);
     map_gr[it.first]->SetMarkerColor(kRed);
 
@@ -54,6 +54,7 @@ PhotonWirePositionDisplay::PhotonWirePositionDisplay(std::string F, std::string 
   NHit           (NULL),
   NHitTot        (NULL),
   NeutrinoEnergy (NULL),
+  Observation    (NULL),
   VertexXPosition(NULL) {
   map_h2_BackTracked = SetUpGraph("Position");
   map_h2_PosHit      = Get2DHistos("Diplay",";Z Position [cm];Y Position [cm]",
@@ -93,9 +94,12 @@ void PhotonWirePositionDisplay::DisplayEvent(int event, int type){
                                              map_h2_PosHit[kAll]->GetEntries(),
                                              (int)map_map_gr_wire[kAll].size()));
   NeutrinoEnergy  = new TLatex(50, -700,Form("#nu energy: %.1f MeV",(*im.True_ENu  )[0]*1000.));
+  Observation     = new TLatex(50, 480,"Only hits from Super Nova neutrinos");
   VertexXPosition = new TLatex(800,-700,Form("X Position: %.0f cm" ,(*im.True_VertX)[0]));
   c->Print("OpHitTrigger_results_evdisplay.pdf[");
   for (auto const& it : map_h2_PosHit) {
+      gStyle->SetPalette(kDeepSea); // kDeepSea kOcean kAvocado kBlueGreenYellow
+      TColor::InvertPalette();
     it.second->Draw("COLZ");
 
     for (auto const& it_gr : map_map_gr_wire[it.first])
@@ -109,6 +113,8 @@ void PhotonWirePositionDisplay::DisplayEvent(int event, int type){
     }
     if (it.first == kSNnu){
       NHit   ->Draw();
+      Observation->Draw();
+      c->Print("event_display.pdf");
     }
     if (it.first == kAll ) NHitTot->Draw();
         
@@ -147,4 +153,5 @@ PhotonWirePositionDisplay::~PhotonWirePositionDisplay(){
   delete NHitTot        ; NHitTot         = NULL;
   delete NeutrinoEnergy ; NeutrinoEnergy  = NULL;
   delete VertexXPosition; VertexXPosition = NULL;
+  delete Observation    ; Observation     = NULL;
 }
